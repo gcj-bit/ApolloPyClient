@@ -49,7 +49,8 @@ class ApolloClient(object):
                  client_ip: Optional[str]=None,
                  log_level: str='INFO',
                  pull_timeout:int = 75,
-                 cycle_time: int = 5,):
+                 cycle_time: int = 5,
+                 ignore_ssl_verify: bool = False):
         """
         Apollo client
         :param app_id: application id
@@ -63,6 +64,7 @@ class ApolloClient(object):
         :param log_level: log level
         :param pull_timeout: pull timeout
         :param cycle_time: cycle time
+        :param ignore_ssl_verify: bool
         """
 
         logger.remove()
@@ -76,21 +78,19 @@ class ApolloClient(object):
         self.client_ip = client_ip or self.init_ip()
         self.config_service_url = config_service_url
 
-        logger.info("config_service_url: {}", self.config_service_url)
-
         self.change_listener: Optional[Callable] = change_listener
         self.namespaces = namespaces or ['application']
         self.pull_timeout = pull_timeout
         self.cycle_time = cycle_time
+        self.ignore_ssl_verify = ignore_ssl_verify
         self.stopping = False
-        self.last_release_key = None
         self._cache: Dict[str, NamespaceConfigValueType]  = {}
         self._notification_map: Dict[str, int]  = {}  # namespace -> notification id
         self._ns: Dict[str, str] = {}
         self.ns = {self._get_ns(namespace): namespace for namespace in self.namespaces}  # ns（no format） -> namespace (with namespace format)
 
         # Load all namespaces
-        self._long_poll()
+        self._fetch_all()
 
         # 定时心跳拉取全量配置
         heartbeat = threading.Thread(target=self._heart_beat, daemon=True)
@@ -132,23 +132,28 @@ class ApolloClient(object):
                 self._ns[namespace] = namespace
         return self._ns.get(namespace)
 
-    @staticmethod
-    def _http_request(url, timeout: int, headers: Optional[Dict]=None) -> (int, Optional[str]):
+    def _http_request(self, url, timeout: int, headers: Optional[Dict]=None) -> (int, Optional[str]):
+        """
+        HTTP request
+        :param url: request url
+        :param timeout: request timeout
+        :param headers: request headers
+        """
         headers = headers or {}
         request = urllib.request.Request(url, headers=headers)
 
-        context = ssl._create_unverified_context()
+        context = ssl._create_unverified_context() if self.ignore_ssl_verify else ssl.create_default_context()
         try:
             with urllib.request.urlopen(request, timeout=timeout, context=context) as response:
                 body = response.read().decode("utf-8")
                 return response.code, body
         except HTTPError as e:
+            if e.code != 304:
+                logger.warning(str(f"HTTPError: {e}"))
             return e.code, None
-        except URLError as e:
-            logger.error(f"Failed to make a request to {url}: {e.reason}")
-            return 0, None
         except Exception as e:
-            raise e
+                logger.error(f"Failed to make a request to {url}: {e}")
+                return 0, None
 
 
 
@@ -270,6 +275,11 @@ class ApolloClient(object):
         self._cache[ns_key] = data
         return data
 
+    def all(self):
+        """
+        Get all configurations
+        """
+        return self._cache
 
     def get_value(self, key, default_val=None, namespace='application'):
         """
@@ -315,6 +325,15 @@ class ApolloClient(object):
         self.stopping = True
         logger.info("Stopping listener...")
 
+    def _fetch_all(self):
+        """
+        Update all namespaces
+        """
+        for namespace in self.namespaces:
+            try:
+                self.get_from_remote(namespace=namespace)
+            except Exception as e:
+                logger.exception(f"Failed to fetch namespace '{namespace}' configurations: {e}")
 
     def _long_poll(self):
         """
@@ -361,7 +380,8 @@ class ApolloClient(object):
                 logger.warning(f"Long poll received unexpected HTTP status code: {http_code}")
 
         except Exception as e:
-            logger.exception("Long polling failed with an exception.", exc_info=e)
+            logger.warning(f"Long polling failed with an exception: {e}")
+            # raise e
 
     def _listener(self):
         """
@@ -378,8 +398,7 @@ class ApolloClient(object):
         Heartbeat to apollo server：update all namespaces every 10 minutes
         """
         while not self.stopping:
-            for namespace in self.namespaces:
-                self.get_from_remote(namespace=namespace)
+            self._fetch_all()
             time.sleep(60 * 10)  # 10 minutes update all namespaces
 
     def _sign_headers(self, url):
@@ -418,6 +437,8 @@ if __name__ == '__main__':
         secret=os.environ.get('APOLLO_SECRET'),
         env=os.environ.get('APOLLO_ENV'),
         namespaces=['application', 'test', 'testjson.json', 'testyaml.yaml'],
+        ignore_ssl_verify=True,
     )
+    print(client.all())
     time.sleep(100000)
 

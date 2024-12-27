@@ -19,19 +19,21 @@ ApolloPyClient
 A Python SDK that is easy to integrate with the Apollo configuration management syste.
 
 
-* Free software: MIT license
-* Documentation: https://ApolloPyClient.readthedocs.io.
 
-
-Features
+Usage
 --------
+```python
+    client = ApolloClient(
+        app_id=os.environ.get('APOLLO_APP_ID'),
+        config_service_url=os.environ.get('APOLLO_CONFIG_URL'),
+        cluster=os.environ.get('APOLLO_CLUSTER'),
+        secret=os.environ.get('APOLLO_SECRET'),
+        env=os.environ.get('APOLLO_ENV'),
+        namespaces=['application', 'test', 'testjson.json', 'testyaml.yaml'],
+        ignore_ssl_verify=True,
+    )
+    print(client.all())
+    # sleep for 100000 seconds, you can view log to get the config
+    time.sleep(100000)
 
-* TODO
-
-Credits
--------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+```

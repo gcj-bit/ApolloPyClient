@@ -8,24 +8,22 @@ version = "0.1.0"
 description = "A Python SDK that is easy to integrate with the Apollo configuration management syste."
 readme = "README.rst"
 authors = [
-  {name = "Joey Gong", email = "come.a.mail@gmail.com"}
+    { name = "Joey Gong", email = "come.a.mail@gmail.com" }
 ]
 maintainers = [
-  {name = "Joey Gong", email = "come.a.mail@gmail.com"}
+    { name = "Joey Gong", email = "come.a.mail@gmail.com" }
 ]
 classifiers = [
 
 ]
-license = {text = "MIT license"}
+license = { text = "MIT license" }
 dependencies = [
-  
+
 ]
 
 [project.optional-dependencies]
 dev = [
-    "coverage",  # testing
-    "mypy",  # linting
-    "pytest",  # testing
+    "pytest", # testing
     "ruff"  # linting
 ]
 
@@ -36,7 +34,7 @@ changelog = "https://github.com/gcj-bit/ApolloPyClient/blob/master/changelog.md"
 homepage = "https://github.com/gcj-bit/ApolloPyClient"
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = { "" = "src" }
 
 [tool.setuptools.package-data]
 "*" = ["*.*"]
