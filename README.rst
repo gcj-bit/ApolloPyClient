@@ -2,27 +2,34 @@
 ApolloPyClient
 ==============
 
+.. image:: https://img.shields.io/badge/License-MIT-blue.svg
+    :target: https://opensource.org/license/MIT
+    :alt: MIT License
 
 .. image:: https://img.shields.io/pypi/v/ApolloPyClient.svg
-        :target: https://pypi.python.org/pypi/ApolloPyClient
-
-.. image:: https://img.shields.io/travis/gcj-bit/ApolloPyClient.svg
-        :target: https://travis-ci.com/gcj-bit/ApolloPyClient
-
-.. image:: https://readthedocs.org/projects/ApolloPyClient/badge/?version=latest
-        :target: https://ApolloPyClient.readthedocs.io/en/latest/?version=latest
-        :alt: Documentation Status
-
+    :target: https://pypi.python.org/pypi/ApolloPyClient
 
 
 
 A Python SDK that is easy to integrate with the Apollo configuration management syste.
 
+A Python package for apollo.
+
+* GitHub repo: https://github.com/gcj-bit/ApolloPyClient
+* Free software: MIT license
+
+Installation
+------------
+
+.. code:: python
+
+    pip install ApolloPyClient
 
 
 Usage
 --------
-```python
+.. code:: python
+
     client = ApolloClient(
         app_id=os.environ.get('APOLLO_APP_ID'),
         config_service_url=os.environ.get('APOLLO_CONFIG_URL'),
@@ -36,4 +43,8 @@ Usage
     # sleep for 100000 seconds, you can view log to get the config
     time.sleep(100000)
 
-```
+
+
+Reference
+~~~~~~~~~~~~~~~~~~~~~~~~
+Apollo : https://www.apolloconfig.com/#/en/client/other-language-client-user-guide

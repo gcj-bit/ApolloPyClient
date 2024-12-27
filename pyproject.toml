@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ApolloPyClient"
-version = "0.1.0"
-description = "A Python SDK that is easy to integrate with the Apollo configuration management syste."
+version = "0.1.1"
+description = "A Python SDK that is easy to integrate with the Apollo configuration management system."
 readme = "README.rst"
 authors = [
     { name = "Joey Gong", email = "come.a.mail@gmail.com" }
@@ -18,7 +18,9 @@ classifiers = [
 ]
 license = { text = "MIT license" }
 dependencies = [
-
+    "loguru",
+    "PyYAML",
+    "xmltodict"
 ]
 
 [project.optional-dependencies]

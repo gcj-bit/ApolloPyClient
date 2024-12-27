@@ -53,13 +53,13 @@ class ApolloClient(object):
                  ignore_ssl_verify: bool = False):
         """
         Apollo client
-        :param app_id: application id
+        :param app_id: application id of apollo project
         :param config_service_url: apollo config service url
-        :param cluster: cluster name
-        :param secret: secret key
+        :param cluster: cluster name of apollo project
+        :param secret: secret key from apollo project
         :param env: environment
-        :param namespaces: namespaces
-        :param change_listener: change listener
+        :param namespaces: namespaces need to be fetched
+        :param change_listener: configuration change listener callback function, e.g. change_listener(action=[add|update|delete], namespace: str, key: str, value: Any)
         :param client_ip: client ip
         :param log_level: log level
         :param pull_timeout: pull timeout
@@ -291,11 +291,14 @@ class ApolloClient(object):
             return val
         return default_val
 
-    def _call_listener(self, namespace, old_kv: Optional[Dict], new_kv: Optional[Dict]):
+    def _call_listener(self, namespace: str, old_kv: Optional[Dict], new_kv: Optional[Dict]):
         """
         Call listener when configuration changes
+        :param namespace: namespace
+        :param old_kv: old key-value
+        :param new_kv: new key-value
         """
-        if self.change_listener is None:
+        if not self.change_listener:
             return
 
         old_kv = old_kv or {}
@@ -430,6 +433,10 @@ if __name__ == '__main__':
     from dotenv import load_dotenv
 
     load_dotenv()
+
+    def change_listener(action: str, namespace: str, key: str, value: NamespaceConfigValueType):
+        print(f"action: {action}, namespace: {namespace}, key: {key}, value", value)
+
     client = ApolloClient(
         app_id=os.environ.get('APOLLO_APP_ID'),
         config_service_url=os.environ.get('APOLLO_CONFIG_URL'),
@@ -438,6 +445,7 @@ if __name__ == '__main__':
         env=os.environ.get('APOLLO_ENV'),
         namespaces=['application', 'test', 'testjson.json', 'testyaml.yaml'],
         ignore_ssl_verify=True,
+        change_listener=change_listener
     )
     print(client.all())
     time.sleep(100000)
