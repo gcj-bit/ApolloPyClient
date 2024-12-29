@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ApolloPyClient"
-version = "0.1.1"
+version = "0.1.2"
 description = "A Python SDK that is easy to integrate with the Apollo configuration management system."
 readme = "README.rst"
 authors = [

@@ -249,10 +249,6 @@ class ApolloClient(object):
         """
         if not ns_cache:
             return None
-
-        kv_data = ns_cache.get(CONFIGURATIONS)
-        if kv_data is None:
-            return None
         return ns_cache.get(key)
 
 
@@ -285,7 +281,7 @@ class ApolloClient(object):
         """
         Get value from cache
         """
-        namespace_data = self._cache.get(namespace)
+        namespace_data = self._cache.get(self._get_ns(namespace))
         val = self.get_value_from_dict(namespace_data, key)
         if val is not None:
             return val
